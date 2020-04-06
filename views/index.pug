@@ -1,0 +1,44 @@
+doctype html
+html(lang='en')
+    include common/head.pug
+    +head("Chunk Generator")
+    body.min-vh-100.bg-light
+        nav.sidebar.col-2.vh-100.position-fixed.text-center.front
+            h2.pt-5.pb-3.text-white Text File Chunk Generator
+            hr.mb-5.bg-white
+            ul.list-unstyled
+                li.py-4
+                    button.btn.w-75.p-1.bg-white New Text File
+                li.py-4
+                    button.btn.w-75.p-1.bg-white Specify New Chunks
+                li.py-4
+                    button.btn.w-75.p-1.bg-white Download Output File
+                li.py-4
+                    button.btn.w-75.p-1.cancel Cancel
+            hr.mb-5.bg-white.btm-line
+            p.names.text-white Shayne Monahan &emsp; Jamie Hyland
+
+        nav.chunk-nav.col-10.position-fixed.text-center.front.shadow
+            ul.list-unstyled.nav.d-inline-flex
+                - var chunks = 2
+                - for (var i = 1; i <= chunks; i++)
+                    li.py-2.nav-item.mx-4
+                        button.btn.px-4.py-1.nav-link.bg-white Chunk #{i}
+
+        div.tbl-con.col-8.float-right
+            table(border=0,cellspacing=0,cellpadding=0).tbl.table.table-striped.table-bordered.shadow.sep
+                thead
+                    tr
+                        th.w-25.tbl-head ID
+                        th.w-50.tbl-head Word
+                        th.w-25.tbl-head Word Count
+                tbody
+                    - var objects = [[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100],[2,"test2",200]]
+                    for entry in objects
+                        tr
+                            td.w-25 #{entry[0]}
+                            td.w-50 #{entry[1]}
+                            td.w-25 #{entry[2]}
+
+        include common/footer.pug
+        +footer()

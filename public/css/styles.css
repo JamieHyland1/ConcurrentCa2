@@ -1,0 +1,63 @@
+.sidebar {
+    background-color: #333333;
+    box-shadow: 3px 10px 7px 5px rgba(0,0,0,0.2);
+}
+
+.chunk-nav {
+    right: 0;
+    background-color: #128193;
+}
+
+.tbl {
+    border-collapse: collapse; 
+    width: 100%;
+}
+
+.tbl-con {
+    margin: 10vh 8.333333% 0 0;
+    overflow-y: auto; 
+    height: 85vh;
+}
+
+.tbl-head {
+    background-color: #454545;
+    border: 1px solid #565656 !important;
+    color: #fff;
+    position: sticky; 
+    top: 0;
+}
+
+.act {
+    background-color: #ffffff !important;
+}
+
+.sep {
+    border-collapse: separate;
+}
+
+.title {
+    font-size: 3vmin;
+}
+
+.front {
+    z-index: 1;
+}
+
+
+.cancel {
+    background-color: #ee6662 !important;
+}
+
+.btm-line {
+    position: absolute;
+    width: 88%;
+    bottom: 1%;
+}
+
+.names {
+    position: absolute;
+    width: 100%;
+    margin-left: -15px;
+    bottom: 0;
+    font-size: 0.75em;
+}

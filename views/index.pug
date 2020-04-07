@@ -3,14 +3,16 @@ html(lang='en')
     include common/head.pug
     +head("Chunk Generator")
     body.min-vh-100.bg-light
+
+        //- Side bar nav
         nav.sidebar.col-2.vh-100.position-fixed.text-center.front
             h2.pt-5.pb-3.text-white Text File Chunk Generator
             hr.mb-5.bg-white
             ul.list-unstyled
                 li.py-4
-                    button.btn.w-75.p-1.bg-white New Text File
+                    button#upload.btn.w-75.p-1.bg-white New Text File
                 li.py-4
-                    button.btn.w-75.p-1.bg-white Specify New Chunks
+                    button#chunks.btn.w-75.p-1.bg-white Specify New Chunks
                 li.py-4
                     button.btn.w-75.p-1.bg-white Download Output File
                 li.py-4
@@ -18,13 +20,15 @@ html(lang='en')
             hr.mb-5.bg-white.btm-line
             p.names.text-white Shayne Monahan &emsp; Jamie Hyland
 
+        //- Chunks bar nav
         nav.chunk-nav.col-10.position-fixed.text-center.front.shadow
             ul.list-unstyled.nav.d-inline-flex
-                - var chunks = 2
+                - var chunks = 3
                 - for (var i = 1; i <= chunks; i++)
                     li.py-2.nav-item.mx-4
                         button.btn.px-4.py-1.nav-link.bg-white Chunk #{i}
 
+        //- Table with Chunk data
         div.tbl-con.col-8.float-right
             table(border=0,cellspacing=0,cellpadding=0).tbl.table.table-striped.table-bordered.shadow.sep
                 thead
@@ -33,12 +37,42 @@ html(lang='en')
                         th.w-50.tbl-head Word
                         th.w-25.tbl-head Word Count
                 tbody
+                    //- Example array
                     - var objects = [[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100],[2,"test2",200]]
                     for entry in objects
                         tr
                             td.w-25 #{entry[0]}
                             td.w-50 #{entry[1]}
                             td.w-25 #{entry[2]}
+
+        //- Form for new Text File
+        div#upload-form.form-wrap.w-100.vh-100
+            form(name="file_upload").form.w-50.bg-white.p-5.text-center.rounded.position-relative
+                div.exit +
+                h2 Upload New Text File
+                p.info-p.w-75.mt-4.mb-5.mx-auto The new Text File will be split into the default chunks. (3 chunks in alphabetical order, going from A-G, H-O, P-Z.) You can change this by using the Specify New Chunks option.
+                input(type="file" name="text_file" onchange="checkExt();").d-block.mx-auto.mb-5
+                button(type="submit" name="submit").form-btn.btn.border Upload
+        
+        //- Form for new Chunks
+        div#chunks-form.form-wrap.w-100.vh-100
+            form.form.w-50.bg-white.p-5.text-center.rounded.position-relative
+                div.exit +
+                h2 Selecting New File Chunks
+                p.info-p.w-75.mt-4.mb-5.mx-auto Chunks can be seperated by Words, ID or Word Count. There can be max 5 chunks and min 2 chunks.
+                label Select how the chunks will be split:
+                select(name="mode")#mode-chunks.w-25.p-2.d-block.mx-auto.mt-2.mb-4
+                    option(value="word") Words
+                    option(value="id") ID
+                    option(value="count") Word Count
+                label Select how many chunks you would like:
+                select(name="num-chunks" onchange="chunkSel();")#num-chunks.w-25.p-2.d-block.mx-auto.my-2
+                    option(value="2") 2
+                    option(value="3") 3
+                    option(value="4") 4
+                    option(value="5") 5
+                button(type="submit" name="submit").form-btn.btn.border Upload
+
 
         include common/footer.pug
         +footer()

@@ -61,3 +61,45 @@
     bottom: 0;
     font-size: 0.75em;
 }
+
+
+.form-wrap {
+    display: none;
+    background-color: rgba(0,0,0,.55);
+    position: fixed;
+    z-index: 10;
+}
+
+.form {
+    margin: 10% auto 0 auto;
+}
+
+.exit{
+    position: absolute;
+    top: 0;
+    right: 2%;
+    font-size: 250%;
+    color: #111111 !important;
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+    cursor: pointer;
+}
+
+.exit:hover {
+    color: #555555 !important;
+}
+
+.info-p {
+    font-size: 90%;
+    font-style: italic;
+}
+
+.form-btn {
+    width: 20%;
+    background-color: #128193 !important;
+    color:  #fefefe !important;
+}
+
+input[type=file] {
+    margin: 0 auto;
+}

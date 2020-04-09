@@ -13,10 +13,14 @@
     width: 100%;
 }
 
+.tbl-meta {
+    margin: 9vh 8.333333% 0 0;
+}
+
 .tbl-con {
-    margin: 10vh 8.333333% 0 0;
+    margin: 3% 8.333333% 0 0;
     overflow-y: auto; 
-    height: 85vh;
+    height: 65vh;
 }
 
 .tbl-head {

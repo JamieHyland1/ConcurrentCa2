@@ -36,7 +36,6 @@ $('.exit').click(function() {
 	$('#chunks-form').css("display","none");
 });
 
-
 function chunkSel() {
     var val = $('#num-chunks').val();
     $('#chunks-wrap').empty();

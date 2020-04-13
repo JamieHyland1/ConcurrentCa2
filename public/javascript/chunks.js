@@ -20,6 +20,7 @@ socket.on('new_file', function(data){
 
 socket.on('new_chunks', function(data) {
     chunks = [];
+    console.log(data)
     var chunk_num = data[0];
     for (var i = 1; i < data.length; i++) {
         chunks.push(data[i]);
@@ -86,7 +87,7 @@ $(document).ready(function() {
         $('#chunks-form').css("display","none");
         var chunkNum = $('#num-chunks').val();
         var chunks = [];
-        chunks.push(txtFile);
+        //chunks.push(txtFile);
         chunks.push(chunkNum);
         for (var i = 1; i <= chunkNum; i++) {
             var chunk = [];
@@ -94,6 +95,7 @@ $(document).ready(function() {
             chunk.push($('#chunk_end_'+i).val());
             chunks.push(chunk);
         }
+        console.log(chunks)
         socket.emit('new_chunks', chunks);
         e.preventDefault();
         return false;

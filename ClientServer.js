@@ -32,12 +32,13 @@ io.sockets.on('connection', function(socket) {
   
 
   socket.on('new_chunks', function(msg){
-    console.log(socket.id + ": " + msg);
+    console.log(msg);
     axios.get('http://localhost:8000/getChunks', 
-    {params: { storeIds: msg + ''}})
+    {params: { "msg": msg}})
     .then((res)=>{
-        console.log(res.data)
-    });
+        console.log("Recieved from App.js ", res.data)
+        socket.emit("new_chunks",res.data)
+    }).catch(error=>console.log(error));
   });
 
   socket.on('new_file', function(file_str){

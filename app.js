@@ -29,29 +29,42 @@ if(cluster.isMaster){
 }else if(cluster.isWorker){
     //this process is a worker
    app.listen(8000,()=>console.log(process.pid, "listening"));
+    
+
+    if(unstableNetwork == "true"){
+        var timeToLive = Math.floor(Math.random()*60000)
+        setTimeout(()=>{process.exit()},timeToLive);
+        }
+
+
+
+    // socket.on('new_chunks', function(data){
+    //     var d = data[0].split("\n");
+    //     initializeDictionary(d);
+    
+    // 
+    //     socket.emit('new_chunks', mdata);
+    //   });
+
     app.get("/",(req,res)=>{
         console.log("we got a request")
         res.send("hello world")
     })
+
     app.get("/getChunks",(req,res)=>{
-        //console.log(req.query)
-        let responseData = []
-        let str = req.query.storeIds
-        let requestData = str.split(",")
-        requestData.splice(0,1)
-        let numChunks = requestData[0]
-        for(var i = 0; i < numChunks;i++){
-            let chunksRange = requestData.splice(0,2);
-            responseData.push({"chunk " : getChunk(chunksRange[0],chunksRange[1])})
+        let d = req.query.msg
+        let mdata = [];
+        console.log("request from client for chunks: ", d)
+
+        mdata.push(d[0]);
+        for (var i = 1; i < d.length; i++) {
+            var start = d[i][2];
+            var end = d[i][6];
+            console.log(start,end)
+            mdata.push([[start, end], getMetaData(getChunk(start, end))]);
         }
-        res.send(responseData)
-        console.log(responseData)
-       
+        res.send(mdata)
     });
-     if(unstableNetwork == "true"){
-        var timeToLive = Math.floor(Math.random()*60000)
-        setTimeout(()=>{process.exit()},timeToLive);
-        }
 }
    
 

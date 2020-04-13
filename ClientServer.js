@@ -25,7 +25,6 @@ var io = socket(server);
 
 io.sockets.on('connection', function(socket) {
   console.log("New Client: " + socket.id);
-  console.log("Sending hello to App.js!");
   axios.get("http://localhost:8000/").then((res)=>{
       console.log(res.data, " from app.js")
   }).catch((err)=>{console.log(err)})

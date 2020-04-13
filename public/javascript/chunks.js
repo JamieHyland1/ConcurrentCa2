@@ -76,16 +76,12 @@ $(document).ready(function() {
         var gtxtFile = $('#txt-file').prop('files');
         var f;
         const reader = new FileReader();
-        reader.onload = function () {
-            f = reader.result;
+        var data = {};
+        reader.onload = function (e) {
+            var options = {method: "POST",headers:{"Content-Type": "text/html"}, body:e.currentTarget.result}
+            $.post('http://localhost:8000/uploadFile',options)
         }
         reader.readAsText(gtxtFile[0]);
-        
-        console.log(reader)
-       
-        console.log(f)
-         var options = {method: "POST",headers:{'Content-Type': "application/json"}, body: JSON.stringify(f)}
-         $.post('http://localhost:8000/uploadFile',options)
         e.preventDefault();
     });
 

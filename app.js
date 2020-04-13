@@ -3,12 +3,10 @@ const numCPUs = require('os').cpus().length;
 var server = require('http')
 var express = require('express')
 var app = express()
-var sizeof = require('object-sizeof');
 var bodyParser = require('body-parser');
 
 var fs = require('fs');
 var unstableNetwork = process.argv[2];
-var queue = null;
 
 //-------------------------------------------------------------------------------------------------------
 //CLUSTER CODE
@@ -62,7 +60,9 @@ if(cluster.isMaster){
     });
 
     app.post("/uploadFile",(req,res)=>{
-        console.log(req.body.body)
+        var d = req.body.body
+        d = d.split("\n")
+        initializeDictionary(d);        
     });
 }
    
@@ -83,6 +83,7 @@ initializeDictionary(d)
 
 //create the dictionary of data for chunking
 function initializeDictionary(d){ 
+    data = {}
   for(var letter=97;letter<123;letter++)
   {
   var _char = String.fromCharCode(letter);
@@ -90,6 +91,7 @@ function initializeDictionary(d){
   }
   for(var i = 0; i < d.length; i++){
     var chunkItem = d[i].split("\t");
+    //console.log(chunkItem)
     let key = chunkItem[1].charAt(0).toLowerCase();
     if(!(key in data)){
         data[key] = [{"index": chunkItem[0], "value": chunkItem[1], "occurrences":chunkItem[3]}];

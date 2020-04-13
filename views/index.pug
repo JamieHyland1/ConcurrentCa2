@@ -4,9 +4,10 @@ html(lang='en')
     +head("Chunk Generator")
     body.min-vh-100.bg-light
         //- example arrays (will replace)
-        - var metadata =[1000,100,"Test", "Cats"]
+        - var metadata = [1000,100,"Test", "Cats"]
         - var data = [[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100], [2,"test2",200],[1,"test",100],[2,"test2",200]]
-
+        - var chunks = !{numchunks}
+        - console.log(1)
 
         //- Side bar nav
         nav.sidebar.col-2.vh-100.position-fixed.text-center.front
@@ -16,53 +17,52 @@ html(lang='en')
                 li.py-4
                     button#upload.btn.w-75.p-1.bg-white New Text File
                 li.py-4
-                    button#chunks.btn.w-75.p-1.bg-white Specify New Chunks
+                    button(disabled)#chunks.nav-btn.btn.w-75.p-1.bg-white Specify New Chunks
                 li.py-4
-                    button.btn.w-75.p-1.bg-white Download Output File
+                    button(disabled).nav-btn.btn.w-75.p-1.bg-white Download Output File
                 li.py-4
-                    button.btn.w-75.p-1.cancel Cancel
+                    button(disabled).nav-btn.btn.w-75.p-1.cancel Cancel
             hr.mb-5.bg-white.btm-line
             p.names.text-white Shayne Monahan &emsp; Jamie Hyland
 
         //- Chunks bar nav
         nav.chunk-nav.col-10.position-fixed.text-center.front.shadow
-            ul.list-unstyled.nav.d-inline-flex
-                - var chunks = 3
-                - for (var i = 1; i <= chunks; i++)
-                    li.py-2.nav-item.mx-4
-                        button(id="chunk-" + i).btn.px-4.py-1.nav-link.bg-white Chunk #{i}
+            ul#chunk-ul.list-unstyled.nav.d-inline-flex
 
         //- Table with Chunk MetaData
         div.tbl-meta.col-8.float-right
-            h3.text-center Chunk 1
-            table(border=0,cellspacing=0,cellpadding=0).tbl.table.table-striped.table-bordered.shadow.sep.border.mt-3
+            h2#meta-title.text-center
+            p#meta-p.text-center.mt-3
+            table(border=0,cellspacing=0,cellpadding=0).tbl.table.table-striped.table-bordered.shadow.sep.border
                 thead
                     tr
                         th.w-25.tbl-head Total Word Count
                         th.w-25.tbl-head Total Unique Words
                         th.w-25.tbl-head Most Frequent Word
-                        th.w-25.tbl-head Least Frequent Word
-
+                        th.w-25.tbl-head Single Occuring Words
                 tbody
                         tr
-                        for entry in metadata
-                            td.w-25 #{entry}
+                            td#word-count.w-25 
+                            td#unique-word.w-25 
+                            td#max-count.w-25 
+                            td#single-occ.w-25 
 
 
-        //- Table with Chunk data
-        div.tbl-con.col-8.float-right
-            table(border=0,cellspacing=0,cellpadding=0).tbl.table.table-striped.table-bordered.shadow.sep
-                thead
-                    tr
-                        th.w-25.tbl-head ID
-                        th.w-50.tbl-head Word
-                        th.w-25.tbl-head Word Count
-                tbody
-                    for entry in data
-                        tr
-                            td.w-25 #{entry[0]}
-                            td.w-50 #{entry[1]}
-                            td.w-25 #{entry[2]}
+        //- Table with Chunk data  ---- (removing as too much data makes the page unresponsive)
+        //- div.tbl-con.col-8.float-right
+        //-     table(border=0,cellspacing=0,cellpadding=0).tbl.table.table-striped.table-bordered.shadow.sep
+        //-         thead
+        //-             tr
+        //-                 th.w-25.tbl-head ID
+        //-                 th.w-50.tbl-head Word
+        //-                 th.w-25.tbl-head Word Count
+        //-         tbody#data-body
+        //-             //-for entry in data
+        //-                 tr
+        //-                     td.w-25 #{entry[0]}
+        //-                     td.w-50 #{entry[1]}
+        //-                     td.w-25 #{entry[2]}
+
 
         //- Form for new Text File
         div#upload-form.form-wrap.w-100.vh-100

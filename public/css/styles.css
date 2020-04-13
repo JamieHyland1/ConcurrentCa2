@@ -6,15 +6,19 @@
 .chunk-nav {
     right: 0;
     background-color: #128193;
+    min-height: 5%;
 }
 
 .tbl {
     border-collapse: collapse; 
     width: 100%;
+    margin-top: 5vh;
 }
 
 .tbl-meta {
-    margin: 9vh 8.333333% 0 0;
+    display: none;
+    margin: 20vh 8.333333% 0 0;
+    empty-cells: show;
 }
 
 .tbl-con {

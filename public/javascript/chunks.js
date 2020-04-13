@@ -6,7 +6,19 @@ var chunks = [];
 
 var txtFile;
 
+socket.on('startup', function(data){
+    var chunk_num = data[0];
+    chunks.push(data[1]);
+    chunks.push(data[2]);
+    chunks.push(data[3]);
+    init_btn(chunk_num);
+    $('.tbl-meta').css("display","block");
+    $('.nav-btn').prop("disabled", false);
+    chunk_data(1);
+});
+
 socket.on('new_file', function(data){
+    chunks = [];
     var chunk_num = data[0];
     chunks.push(data[1]);
     chunks.push(data[2]);
@@ -33,7 +45,6 @@ socket.on('new_chunks', function(data) {
 function init_btn(num) {
     $('#chunk-ul').empty();
     for (var i = 1; i <= num; i++) {
-        console.log(i)
         $('<li id="chunk-li-'+i+'" class="py-2 nav-item mx-4"></li>').appendTo($('#chunk-ul'));
         if (i==1)
             $('<button id="chunk-btn-'+i+'" class="chunk-btn btn px-4 py-1 nav-link bg-white" onClick="chunk_click(this.id)" disabled> Chunk '+i+'</button>').appendTo($('#chunk-li-'+i));
@@ -49,8 +60,8 @@ function chunk_click(id) {
 }
 
 function chunk_data(num) {
+
     var c = chunks[num-1][0];
-    $('.tbl-meta').css("display","block");
     var data = chunks[num-1][1];
     $('#meta-title').html("Chunk " + num);
     $('#meta-p').html("Chunk is split from '" + c[0] + "' to '" + c[1] + "'");
@@ -58,11 +69,14 @@ function chunk_data(num) {
     $('#unique-word').html(data[1]);
     $('#max-count').html(data[2]);
     $('#single-occ').html(data[3]);
-    console.log($('#meta-p'))
 }
 
 
 $(document).ready(function() {
+
+    socket.emit('startup', "ready");
+
+
     $(window).keydown(function(event){
         // prevent "enter" key from sending form
         if(event.keyCode == 13) {
@@ -98,10 +112,29 @@ $(document).ready(function() {
             chunk.push($('#chunk_end_'+i).val());
             chunks.push(chunk);
         }
-        console.log(chunks)
         socket.emit('new_chunks', chunks);
         e.preventDefault();
         return false;
+    });
+
+
+    $('#download').click(function() {
+        var chunk = []
+        var num;
+        for (var i = 1; i <= chunks.length; i++) {
+            if ($('#chunk-btn-'+i).is(":disabled")) {
+                num = i;
+                break;
+            }
+        }
+        c = chunks[num-1][0];
+        chunk.push(c[0]);
+        chunk.push(c[1]);
+        console.log(chunk)
+        socket.emit('download', chunk);
+        setTimeout(function () {
+            window.open("/download");
+        }, 3000);
     });
 });
 

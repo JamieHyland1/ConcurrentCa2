@@ -28,27 +28,28 @@ if(cluster.isMaster){
     
 }else if(cluster.isWorker){
     //this process is a worker
-   app.listen(8000,()=>console.log(process.pid, "listening"));
-   //app.use(bodyParser.json({limit: '150mb'}));
-   app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-   limit: '150mb',
-   extended: true
-   })); 
+    app.listen(8000,()=>console.log(process.pid, "listening"));
+    //app.use(bodyParser.json({limit: '150mb'}));
+    app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+        limit: '150mb',
+        extended: true
+    })); 
    
 
     if(unstableNetwork == "true"){
         var timeToLive = Math.floor(Math.random()*60000)
         setTimeout(()=>{process.exit()},timeToLive);
     }
+
     app.get("/",(req,res)=>{
         console.log(process.pid, " got a request");
         res.send(`hello world from ${process.pid}`);
     });
 
     app.get("/getChunks",(req,res)=>{
-        let d = req.query.msg
+        let d = req.query.msg;
         let mdata = [];
-       // console.log("request from client for chunks: ", d)
+        // console.log("request from client for chunks: ", d);
 
         mdata.push(d[0]);
         for (var i = 1; i < d.length; i++) {
@@ -59,10 +60,32 @@ if(cluster.isMaster){
         res.send(mdata)
     });
 
+    app.get("/startup",(req,res)=>{
+        var data = [];
+        data.push(3);
+        data.push([["a", "g"], getMetaData(getChunk("a", "g"))]);
+        data.push([["h", "o"], getMetaData(getChunk("h", "o"))]);
+        data.push([["p", "z"], getMetaData(getChunk("p", "z"))]);
+        res.send(data);
+    });
+
     app.post("/uploadFile",(req,res)=>{
         var d = req.body.body
         d = d.split("\n")
-        initializeDictionary(d);        
+        initializeDictionary(d);
+        var data = [];
+        data.push(3);
+        data.push([["a", "g"], getMetaData(getChunk("a", "g"))]);
+        data.push([["h", "o"], getMetaData(getChunk("h", "o"))]);
+        data.push([["p", "z"], getMetaData(getChunk("p", "z"))]);
+        res.send(data);
+    });
+
+    
+    app.get("/download",(req,res)=>{
+        let chunk = req.query.msg;
+        var text = repeatRandomTimes(getChunk(chunk[0], chunk[1]));
+        res.send(text);
     });
 }
    
@@ -168,19 +191,15 @@ function getLetterCountInChunk(chunk){
     console.log(letterCountInChunk)
 }
 
-function repeatRandomTimes(a,b){
-    var obj1,obj2;
-    obj1 = data[a][Math.floor(Math.random()*data[a].length)]
-    obj2 = data[b][Math.floor(Math.random()*data[b].length)]
 
-    var stream = fs.createWriteStream("output.txt");
-    stream.once('open', function(fd) {
-        for(var i = 0; i < obj1.occurrences; i++){
-            stream.write(obj1.value + "\n")
-        }
-        for(var i = 0; i < obj2.occurrences; i++){
-            stream.write(obj2.value + "\n")
-        }
-        stream.end();
-    });
+function repeatRandomTimes(chunk){
+
+  var text = "";
+  for (var i = 0; i < chunk.length; i++) {
+    for (var j = 0; j < chunk[i].occurrences; j++) {
+        // stream.write(chunk[i].value + "\n");
+        text += chunk[i].value + "\n" ;
+    }
+  }
+  return text;
 }

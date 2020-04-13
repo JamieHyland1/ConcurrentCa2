@@ -1,9 +1,63 @@
-var server = require('http').Server();
-var io = require('socket.io')(server);
-
-server.listen(8000,()=>{console.log("running on port 8000")});
-const bodyParser = require("body-parser");
+const cluster = require("cluster");
+const numCPUs = require('os').cpus().length;
+var server = require('http')
+var express = require('express')
+var app = express()
+//var io  = require('socket.io')(server);
 var fs = require('fs');
+var unstableNetwork = process.argv[2];
+var queue = null;
+
+//-------------------------------------------------------------------------------------------------------
+//CLUSTER CODE
+//if this process is master, spawn the worker processes
+if(cluster.isMaster){
+    cluster.schedulingPolicy = cluster.SCHED_RR
+    console.log("this is the master cluster at ",process.pid)
+    for(var i = 0; i < numCPUs; i++){
+       var worker = cluster.fork();
+    }
+    cluster.on("exit", worker => {
+        console.log(`worker ${process.pid} has died.`);
+        console.log(`${Object.keys(cluster.workers).length} remaining`)
+        console.log("spawning new process")
+        cluster.fork();
+    })
+
+ 
+    
+}else if(cluster.isWorker){
+    //this process is a worker
+   app.listen(8000,()=>console.log(process.pid, "listening"));
+    app.get("/",(req,res)=>{
+        console.log("we got a request")
+        res.send("hello world")
+    })
+    app.get("/getChunks",(req,res)=>{
+        //console.log(req.query)
+        let responseData = []
+        let str = req.query.storeIds
+        let requestData = str.split(",")
+        requestData.splice(0,1)
+        let numChunks = requestData[0]
+        for(var i = 0; i < numChunks;i++){
+            let chunksRange = requestData.splice(0,2);
+            responseData.push({"chunk " : getChunk(chunksRange[0],chunksRange[1])})
+        }
+        res.send(responseData)
+        console.log(responseData)
+       
+    });
+     if(unstableNetwork == "true"){
+        var timeToLive = Math.floor(Math.random()*60000)
+        setTimeout(()=>{process.exit()},timeToLive);
+        }
+}
+   
+
+
+//-------------------------------------------------------------------------------------------------------
+//SERVER CODE
 //Retrieve the text file as one big string
 var str = fs.readFileSync('data.txt', 'utf8');
 //Convert into an array of strings, each string in the format number character character number
@@ -11,42 +65,40 @@ var d = str.split("\n");
 
 var data = {};
 
+initializeDictionary(d)
+// io.sockets.on('connection', function(socket) {
+//   console.log("New Client: " + socket.id);
 
-io.set('transports', ['websocket']);
+//   socket.on('new_chunks', function(data){
+//     var d = data[0].split("\n");
+//     initializeDictionary(d);
 
-io.sockets.on('connection', function(socket) {
-  console.log("New Client: " + socket.id);
+//     mdata = [];
+//     mdata.push(data[1]);
+//     for (var i = 2; i < data.length; i++) {
+//       var start = data[i][0];
+//       var end = data[i][1];
+//       mdata.push([[start, end], getMetaData(getChunk(start, end))]);
+//     }
+//     socket.emit('new_chunks', mdata);
+//   });
+//   socket.on('new_file', function(file_str){
+//     var d = file_str.split("\n");
+//     initializeDictionary(d);
 
-  socket.on('new_chunks', function(data){
-    var d = data[0].split("\n");
-    initializeDictionary(d);
+//     var mdata = [];
+//     mdata.push(3);
+//     mdata.push([["a","g"], getMetaData(getChunk("a","g"))]);
+//     mdata.push([["h","o"], getMetaData(getChunk("h","o"))]);
+//     mdata.push([["p","z"], getMetaData(getChunk("p","z"))]);
+//     socket.emit('new_file', mdata);
+//   });
+//   socket.on('disconnect', function() {
+//     console.log("Client " + socket.id + " Disconnected");
+//   });
+// }); 
 
-    mdata = [];
-    mdata.push(data[1]);
-    for (var i = 2; i < data.length; i++) {
-      var start = data[i][0];
-      var end = data[i][1];
-      mdata.push([[start, end], getMetaData(getChunk(start, end))]);
-    }
-    socket.emit('new_chunks', mdata);
-  });
-  socket.on('new_file', function(file_str){
-    var d = file_str.split("\n");
-    initializeDictionary(d);
-
-    var mdata = [];
-    mdata.push(3);
-    mdata.push([["a","g"], getMetaData(getChunk("a","g"))]);
-    mdata.push([["h","o"], getMetaData(getChunk("h","o"))]);
-    mdata.push([["p","z"], getMetaData(getChunk("p","z"))]);
-    socket.emit('new_file', mdata);
-  });
-  socket.on('disconnect', function() {
-    console.log("Client " + socket.id + " Disconnected");
-  });
-}); 
-
-var data = {};
+// var data = {};
 
 //create the dictionary of data for chunking
 function initializeDictionary(d){ 

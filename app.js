@@ -1,55 +1,89 @@
-var server = require('http').Server();
-var io = require('socket.io')(server);
+const cluster = require("cluster");
+const numCPUs = require('os').cpus().length;
+var server = require('http')
+var express = require('express')
+var app = express()
+var bodyParser = require('body-parser');
 
-server.listen(8000,()=>{console.log("running on port 8000")});
-const bodyParser = require("body-parser");
 var fs = require('fs');
+var unstableNetwork = process.argv[2];
+
+//-------------------------------------------------------------------------------------------------------
+//CLUSTER CODE
+//if this process is master, spawn the worker processes
+if(cluster.isMaster){
+    cluster.schedulingPolicy = cluster.SCHED_RR
+    console.log("this is the master cluster at ",process.pid)
+    for(var i = 0; i < numCPUs; i++){
+       var worker = cluster.fork();
+    }
+    cluster.on("exit", worker => {
+        console.log(`worker ${process.pid} has died.`);
+        console.log(`${Object.keys(cluster.workers).length} remaining`)
+        console.log("spawning new process")
+        cluster.fork();
+    })
+
+ 
+    
+}else if(cluster.isWorker){
+    //this process is a worker
+   app.listen(8000,()=>console.log(process.pid, "listening"));
+   //app.use(bodyParser.json({limit: '150mb'}));
+   app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+   limit: '150mb',
+   extended: true
+   })); 
+   
+
+    if(unstableNetwork == "true"){
+        var timeToLive = Math.floor(Math.random()*60000)
+        setTimeout(()=>{process.exit()},timeToLive);
+    }
+    app.get("/",(req,res)=>{
+        console.log(process.pid, " got a request");
+        res.send(`hello world from ${process.pid}`);
+    });
+
+    app.get("/getChunks",(req,res)=>{
+        let d = req.query.msg
+        let mdata = [];
+       // console.log("request from client for chunks: ", d)
+
+        mdata.push(d[0]);
+        for (var i = 1; i < d.length; i++) {
+            var start = d[i][2];
+            var end = d[i][6];
+            mdata.push([[start, end], getMetaData(getChunk(start, end))]);
+        }
+        res.send(mdata)
+    });
+
+    app.post("/uploadFile",(req,res)=>{
+        var d = req.body.body
+        d = d.split("\n")
+        initializeDictionary(d);        
+    });
+}
+   
+
+
+//-------------------------------------------------------------------------------------------------------
+//SERVER CODE
+
+
 //Retrieve the text file as one big string
 var str = fs.readFileSync('data.txt', 'utf8');
 //Convert into an array of strings, each string in the format number character character number
 var d = str.split("\n");
-
 var data = {};
 
+initializeDictionary(d)
 
-io.set('transports', ['websocket']);
-
-io.sockets.on('connection', function(socket) {
-  console.log("New Client: " + socket.id);
-
-  socket.on('new_chunks', function(data){
-    var d = data[0].split("\n");
-    initializeDictionary(d);
-
-    mdata = [];
-    mdata.push(data[1]);
-    for (var i = 2; i < data.length; i++) {
-      var start = data[i][0];
-      var end = data[i][1];
-      mdata.push([[start, end], getMetaData(getChunk(start, end))]);
-    }
-    socket.emit('new_chunks', mdata);
-  });
-  socket.on('new_file', function(file_str){
-    var d = file_str.split("\n");
-    initializeDictionary(d);
-
-    var mdata = [];
-    mdata.push(3);
-    mdata.push([["a","g"], getMetaData(getChunk("a","g"))]);
-    mdata.push([["h","o"], getMetaData(getChunk("h","o"))]);
-    mdata.push([["p","z"], getMetaData(getChunk("p","z"))]);
-    socket.emit('new_file', mdata);
-  });
-  socket.on('disconnect', function() {
-    console.log("Client " + socket.id + " Disconnected");
-  });
-}); 
-
-var data = {};
 
 //create the dictionary of data for chunking
 function initializeDictionary(d){ 
+    data = {}
   for(var letter=97;letter<123;letter++)
   {
   var _char = String.fromCharCode(letter);
@@ -57,6 +91,7 @@ function initializeDictionary(d){
   }
   for(var i = 0; i < d.length; i++){
     var chunkItem = d[i].split("\t");
+    //console.log(chunkItem)
     let key = chunkItem[1].charAt(0).toLowerCase();
     if(!(key in data)){
         data[key] = [{"index": chunkItem[0], "value": chunkItem[1], "occurrences":chunkItem[3]}];

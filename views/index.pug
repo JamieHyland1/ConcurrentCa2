@@ -17,7 +17,7 @@ html(lang='en')
                 li.py-4
                     button#upload.btn.w-75.p-1.bg-white New Text File
                 li.py-4
-                    button(disabled)#chunks.nav-btn.btn.w-75.p-1.bg-white Specify New Chunks
+                    button#chunks.nav-btn.btn.w-75.p-1.bg-white Specify New Chunks
                 li.py-4
                     button(disabled).nav-btn.btn.w-75.p-1.bg-white Download Output File
                 li.py-4
@@ -66,7 +66,7 @@ html(lang='en')
 
         //- Form for new Text File
         div#upload-form.form-wrap.w-100.vh-100
-            form(id="file_upload" name="file_upload").form.w-50.bg-white.p-5.text-center.rounded.position-relative
+            form(id="file_upload" name="file_upload" action="http://localhost:8000/uploadFile").form.w-50.bg-white.p-5.text-center.rounded.position-relative
                 div.exit +
                 h2 Upload New Text File
                 p.info-p.w-75.mt-4.mb-5.mx-auto The new Text File will be split into the default chunks. (3 chunks in alphabetical order, going from A-G, H-O, P-Z.) You can change this by using the Specify New Chunks option.

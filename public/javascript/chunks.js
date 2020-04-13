@@ -20,6 +20,7 @@ socket.on('new_file', function(data){
 
 socket.on('new_chunks', function(data) {
     chunks = [];
+    console.log(data)
     var chunk_num = data[0];
     for (var i = 1; i < data.length; i++) {
         chunks.push(data[i]);
@@ -32,6 +33,7 @@ socket.on('new_chunks', function(data) {
 function init_btn(num) {
     $('#chunk-ul').empty();
     for (var i = 1; i <= num; i++) {
+        console.log(i)
         $('<li id="chunk-li-'+i+'" class="py-2 nav-item mx-4"></li>').appendTo($('#chunk-ul'));
         if (i==1)
             $('<button id="chunk-btn-'+i+'" class="chunk-btn btn px-4 py-1 nav-link bg-white" onClick="chunk_click(this.id)" disabled> Chunk '+i+'</button>').appendTo($('#chunk-li-'+i));
@@ -48,6 +50,7 @@ function chunk_click(id) {
 
 function chunk_data(num) {
     var c = chunks[num-1][0];
+    $('.tbl-meta').css("display","block");
     var data = chunks[num-1][1];
     $('#meta-title').html("Chunk " + num);
     $('#meta-p').html("Chunk is split from '" + c[0] + "' to '" + c[1] + "'");
@@ -55,6 +58,7 @@ function chunk_data(num) {
     $('#unique-word').html(data[1]);
     $('#max-count').html(data[2]);
     $('#single-occ').html(data[3]);
+    console.log($('#meta-p'))
 }
 
 
@@ -70,14 +74,14 @@ $(document).ready(function() {
     $('#file_upload').submit(function(e) {
         $('#upload-form').css("display","none");
         var gtxtFile = $('#txt-file').prop('files');
-
+        var f;
         const reader = new FileReader();
-        reader.onload = function () {
-            txtFile = reader.result;
-            socket.emit('new_file', txtFile);
+        var data = {};
+        reader.onload = function (e) {
+            var options = {method: "POST",headers:{"Content-Type": "text/html"}, body:e.currentTarget.result}
+            $.post('http://localhost:8000/uploadFile',options)
         }
         reader.readAsText(gtxtFile[0]);
-
         e.preventDefault();
     });
 
@@ -86,7 +90,7 @@ $(document).ready(function() {
         $('#chunks-form').css("display","none");
         var chunkNum = $('#num-chunks').val();
         var chunks = [];
-        chunks.push(txtFile);
+        //chunks.push(txtFile);
         chunks.push(chunkNum);
         for (var i = 1; i <= chunkNum; i++) {
             var chunk = [];
@@ -94,6 +98,7 @@ $(document).ready(function() {
             chunk.push($('#chunk_end_'+i).val());
             chunks.push(chunk);
         }
+        console.log(chunks)
         socket.emit('new_chunks', chunks);
         e.preventDefault();
         return false;

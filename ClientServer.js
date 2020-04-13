@@ -42,7 +42,11 @@ io.sockets.on('connection', function(socket) {
   });
 
   socket.on('new_file', function(file_str){
-    console.log("new file", file_str)
+    axios.get('http://localhost:8000/uploadFile', 
+    {params: { "file": file_str}})
+    .then((res)=>{
+        console.log("Recieved from App.js ", res.data)
+    }).catch(error=>console.log(error));
   });
 
   socket.on('disconnect', function() {
